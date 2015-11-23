@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.1.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.1.xsd">
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+
+	<!-- declaration des annotations -->
+	<context:annotation-config/>
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<resources mapping="/resources/**" location="/resources/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+	<jdbc:embedded-database id="dataSource" type="H2"/>
+	<beans:bean id="sessionfactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+	<beans:property name="hibernateProperties">
+	<beans:props>
+		<beans:prop key="hibernate.dialect">org.hibernate.dialect.H2Dialect</beans:prop>
+		<beans:prop key="hibernate.connection.url">jdbc:h2:mem:</beans:prop>
+		<beans:prop key="hibernate.connection.driver_class">org.h2.Driver</beans:prop>
+		<beans:prop key="hibernate.jdbc.batch_size">50</beans:prop>
+		<beans:prop key="hibernate.hbm2ddl.auto">create</beans:prop>
+		<beans:prop key="hibernate.hbm2ddl.import_files">db-test-data.sql</beans:prop>  
+	</beans:props>
+	</beans:property>
+    <beans:property name="annotatedClasses" >
+    <beans:list >
+    <beans:value>com.task.test.Model.Department</beans:value>
+    <beans:value>com.task.test.Model.Employee</beans:value>
+    </beans:list>
+    </beans:property>
+    <beans:property name="dataSource" ref="dataSource"/>
+	</beans:bean>
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	<beans:bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+	    <beans:property name="sessionFactory" ref="sessionfactory" />
+	</beans:bean>
+	<beans:bean id="restTemplate" class="org.springframework.web.client.RestTemplate"/>
+	
+	<context:component-scan  base-package="com.task.test" />
+	
+  <beans:import resource="classpath:org/springframework/jdbc/support/sql-error-codes.xml"/>
+    <beans:bean id = "H2" class="org.springframework.jdbc.support.SQLErrorCodes">
+        <beans:property name="badSqlGrammarCodes">
+            <beans:value>
+                42000,42001,42101,42102,42111,42112,42121,42122,42132
+            </beans:value>
+        </beans:property>
+        <beans:property name="duplicateKeyCodes">
+            <beans:value>23001,23505</beans:value>
+        </beans:property>
+        <beans:property name="dataIntegrityViolationCodes">
+            <beans:value>22003,22012,22025,23000</beans:value>
+        </beans:property>
+        <beans:property name="dataAccessResourceFailureCodes">
+            <beans:value>90046,90100,90117,90121,90126</beans:value>
+        </beans:property>
+        <beans:property name="cannotAcquireLockCodes">
+            <beans:value>50200</beans:value>
+        </beans:property>
+    </beans:bean>
+	
+		
+</beans:beans>
+
+
+
